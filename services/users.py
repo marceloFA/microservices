@@ -1,15 +1,25 @@
-from services import root_dir, nice_json
+from os.path import dirname, realpath
 from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
 from werkzeug.exceptions import NotFound, ServiceUnavailable
 import json
 import requests
 
 
 app = Flask(__name__)
+root_dir = dirname(realpath(__file__ + '/..'))
+db_file = f"sqlite:///{root_dir}/database/users.db"
+app.config['SQLALCHEMY_DATABASE_URI'] = db_file
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
 
-with open("{}/database/users.json".format(root_dir()), "r") as data:
-    users = json.load(data)
+class User(db.Model):
+    """ This class maps the database user model """
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(120), nullable=False)
 
+    def __repr__(self):
+        return f"<User: {self.name}>"
 
 @app.route("/", methods=['GET'])
 def hello():

@@ -7,5 +7,4 @@ setup(name="microservices",
       platforms = ["any"],
       license = "BSD",
       packages = find_packages(),
-      install_requires = ["Flask", "requests"],
       )

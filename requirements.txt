@@ -1,2 +1,6 @@
-flask
 virtualenv
+flask
+flask-sqlalchemy
+flask-testing
+marshmallow
+requests
