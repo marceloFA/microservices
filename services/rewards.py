@@ -1,12 +1,13 @@
 from os.path import dirname, realpath
+# to return HTTP status to incoming requests
+from http import HTTPStatus as http_status
 # microframework for webapps
 from flask import Flask, request, Response
 # local data storage
 from flask_sqlalchemy import SQLAlchemy
 # data serialization
 from marshmallow import Schema, fields, post_load
-# to return HTTP status to incoming requests
-from http import HTTPStatus as http_status
+
 # read and dump as json data
 import json
 # exception handling

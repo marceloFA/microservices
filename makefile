@@ -11,6 +11,8 @@ venv:
 	$(VIRTUALENV) venv
 
 install: clean venv
+	. venv/bin/activate; pip install -r requirements.txt
+	. venv/bin/activate; pip install -e .
 	. venv/bin/activate; python setup.py install
 	. venv/bin/activate; python setup.py develop
 
