@@ -27,9 +27,9 @@ showtimes_db.create_all()
 users_db.create_all()
 
 # populate bookings
-b1 = Booking(user=1, date=date(2019, 11, 1), movie=1)
-b2 = Booking(user=2, date=date(2019, 11, 2), movie=2)
-b3 = Booking(user=3, date=date(2019, 11, 3), movie=3)
+b1 = Booking(user=1, date=date(2019, 11, 1), movie=1, rewarded=True)
+b2 = Booking(user=2, date=date(2019, 11, 2), movie=2, rewarded=True)
+b3 = Booking(user=3, date=date(2019, 11, 3), movie=3, rewarded=True)
 bookings_db.session.add(b1)
 bookings_db.session.add(b2)
 bookings_db.session.add(b3)

@@ -70,16 +70,16 @@ class TestBookingService(FlaskTestingCase):
 
     def populate_db(self):
         """ Populates the database """
-        b1 = bookings.Booking(user=1, date=datetime_date(2019, 11, 1), movie=1)
-        b2 = bookings.Booking(user=2, date=datetime_date(2019, 11, 2), movie=2)
-        b3 = bookings.Booking(user=3, date=datetime_date(2019, 11, 3), movie=3)
+        b1 = bookings.Booking(user=1, date=datetime_date(2019, 11, 1), movie=1, rewarded=True)
+        b2 = bookings.Booking(user=2, date=datetime_date(2019, 11, 2), movie=2, rewarded=True)
+        b3 = bookings.Booking(user=3, date=datetime_date(2019, 11, 3), movie=3, rewarded=True)
         bookings.db.session.add(b1)
         bookings.db.session.add(b2)
         bookings.db.session.add(b3)
         bookings.db.session.commit()
 
     def fields_dict(self, object):
-      """ Get an instane of a model and 
+      """ Get an instane of a model and
           return a dict with fields and values
       """
       column_keys = object.__table__.columns.keys()
