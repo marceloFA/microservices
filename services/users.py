@@ -9,6 +9,7 @@ from marshmallow import Schema, fields, post_load
 from http import HTTPStatus as http_status
 # read and dump as json data
 import json
+import requests
 # exception handling
 from werkzeug.exceptions import NotFound
 
@@ -108,44 +109,30 @@ def new_user():
       )
 
 # TODO: refactor this method
-@app.route("/users/<username>/bookings", methods=['GET'])
-def user_bookings(username):
+@app.route("/users/<user>/bookings", methods=['GET'])
+def user_bookings(user):
     """
-    Gets booking information from the 'Bookings Service' for the user, and
-     movie ratings etc. from the 'Movie Service' and returns a list.
-    :param username:
-    :return: List of Users bookings
-    """
-    if username not in users:
-        raise NotFound("User '{}' not found.".format(username))
+    Gets booking information from the bookings service for this user
 
+    response format is like:
+    """
+    get_bookings_url = "http://127.0.0.1:5003/bookings"
+    if not User.query.get(user):
+        return NotFound
+    
     try:
-        users_bookings = requests.get("http://127.0.0.1:5003/bookings/{}".format(username))
+        response = requests.get(f"{get_bookings_url}/{user}")
     except requests.exceptions.ConnectionError:
         raise ServiceUnavailable("The Bookings service is unavailable.")
 
-    if users_bookings.status_code == 404:
-        raise NotFound("No bookings were found for {}".format(username))
+    if response.status_code == http_status.NOT_FOUND:
+        raise NotFound("No bookings were found for user {user}")
 
-    users_bookings = users_bookings.json()
-
-    # For each booking, get the rating and the movie title
-    result = {}
-    for date, movies in users_bookings.iteritems():
-        result[date] = []
-        for movieid in movies:
-            try:
-                movies_resp = requests.get("http://127.0.0.1:5001/movies/{}".format(movieid))
-            except requests.exceptions.ConnectionError:
-                raise ServiceUnavailable("The Movie service is unavailable.")
-            movies_resp = movies_resp.json()
-            result[date].append({
-                "title": movies_resp["title"],
-                "rating": movies_resp["rating"],
-                "uri": movies_resp["uri"]
-            })
-
-    return nice_json(result)
+    return Response(
+      response=json.dumps(response.json()),
+      status=http_status.OK,
+      mimetype='application/json'
+      )
 
 # TODO: implement this
 @app.route("/users/<username>/suggested", methods=['GET'])

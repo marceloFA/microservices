@@ -71,7 +71,7 @@ class TestMoviesService(FlaskTestingCase):
     def populate_db(self):
         """ Populates the database """
         s1 = showtimes.Showtime(date=datetime_date(2019, 11, 1), movie=1)
-        s2 = showtimes.Showtime(date=datetime_date(2019, 11, 2), movie=2)
+        s2 = showtimes.Showtime(date=datetime_date(2019, 11, 1), movie=2)
         s3 = showtimes.Showtime(date=datetime_date(2019, 11, 3), movie=3)
 
         showtimes.db.session.add(s1)

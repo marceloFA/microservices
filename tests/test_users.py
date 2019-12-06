@@ -57,6 +57,28 @@ class TestUserService(FlaskTestingCase):
 
             self.assertEqual(fake_user.name, response_user.name)
     
+    def test_user_bookings(self):
+        """ Test  user's bookings retrieving """
+        get_bookings_url = "http://127.0.0.1/:5000/users"
+        user = 2
+        expected_response_json = """[
+                                    {
+                                        "date": "2019-11-01",
+                                        "id": 2,
+                                        "movie": 2,
+                                        "rewarded": true,
+                                        "user": 2
+                                    }
+                                ]"""
+        expected_response_dict = json.loads(expected_response_json)
+        
+        with users.app.test_client() as get_bookings_route:
+            response = requests.get(f"{self.url}/{user}/bookings")
+            #actual_response_json = json.dumps(response.json())
+            response_json = json.dumps(response.json())
+            actual_response_dict = json.loads(response_json)
+            
+            self.assertEqual(expected_response_dict, actual_response_dict)
 
     def test_not_found(self):
       """ GET a invalid user """
