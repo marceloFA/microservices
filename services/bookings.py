@@ -30,6 +30,7 @@ class Booking(db.Model):
     user = db.Column(db.Integer, nullable=False)
     date = db.Column(db.Date, nullable=False)
     movie = db.Column(db.Integer, nullable=False)
+    rewarded = db.Column(db.Boolean, nullable=False, default=False)
 
     def __repr__(self):
         """ to simple represent an instance of a booking """
@@ -45,6 +46,7 @@ class BookingSchema(Schema):
     date = fields.Date()
     id = fields.Int(required=False)
     movie = fields.Int()
+    rewarded = fields.Boolean(required=False)
     user = fields.Int()
 
     @post_load

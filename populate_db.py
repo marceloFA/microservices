@@ -1,14 +1,14 @@
-from bookings import db as bookings_db
-from movies import db as movies_db
-from rewards import db as rewards_db
-from showtimes import db as showtimes_db
-from users import db as users_db
+from services.bookings import db as bookings_db
+from services.movies import db as movies_db
+from services.rewards import db as rewards_db
+from services.showtimes import db as showtimes_db
+from services.users import db as users_db
 # Models
-from bookings import Booking
-from movies import Movie
-from rewards import Reward
-from showtimes import Showtime
-from users import User
+from services.bookings import Booking
+from services.movies import Movie
+from services.rewards import Reward
+from services.showtimes import Showtime
+from services.users import User
 # timestamp
 from datetime import date
 
@@ -27,9 +27,9 @@ showtimes_db.create_all()
 users_db.create_all()
 
 # populate bookings
-b1 = Booking(user=1, date=date(2019, 11, 1), movie=1)
-b2 = Booking(user=2, date=date(2019, 11, 2), movie=2)
-b3 = Booking(user=3, date=date(2019, 11, 3), movie=3)
+b1 = Booking(user=1, date=date(2019, 11, 1), movie=1, rewarded=True)
+b2 = Booking(user=2, date=date(2019, 11, 2), movie=2, rewarded=True)
+b3 = Booking(user=3, date=date(2019, 11, 3), movie=3, rewarded=True)
 bookings_db.session.add(b1)
 bookings_db.session.add(b2)
 bookings_db.session.add(b3)

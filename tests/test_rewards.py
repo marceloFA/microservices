@@ -25,10 +25,11 @@ class TestRewardService(FlaskTestingCase):
     def setUp(self):
         """ Get everything ready for tests """
         self.url = "http://127.0.0.1:5004/rewards"
-        self.add_score_url = "http://127.0.0.1:5004/rewards/add_score/"
-        self.is_prize_available_url = "http://127.0.0.1:5004/rewards/is_prize_available/"
-        self.add_to_score_dict = {"user":1, "add_to_score": 1}
-        self.new_score_json = {"score": 1,"user": 1}
+        # to test a user's score
+        self.post_score_url = "http://localhost:5004/rewards/add_score"
+        self.add_to_score_json = """{"user":1, "add_to_score": 1}"""
+        self.new_score_json = """{"score": 1, "user": 1}"""
+        # to test if prize is available
         rewards.db.create_all()
         self.populate_db()
 
@@ -44,34 +45,37 @@ class TestRewardService(FlaskTestingCase):
         reward_score = rewards.Reward.query.get(1)
         with rewards.app.test_client() as get_reward_route:
             response = requests.get(f"{self.url}/{reward_score.user}")
-            print(response.json())
-            response_json = json.dumps(response.json())
-            response_reward = rewards.reward_schema.loads(response_json)
+            response_reward = rewards.reward_schema.load(response.json())
             self.assertEqual(reward_score.score, response_reward.score)
             self.assertEqual(reward_score.user, response_reward.user)
      
-     # TODO
     def test_add_point_to_user_score(self):
-        """ This asserts that a new point is computed correctly"""
+        """ This asserts that a new point is computed correctly"""        
         with rewards.app.test_client() as add_score_route:
-            response = add_score_route.post(self.add_score_url, json=self.add_to_score_dict)
-            #response_json = json.dumps(response.json())
-            #self.assertEqual(http_status.OK, response.status_code)
-            self.assertEqual(self.new_score_json, response.json())
+            response = add_score_route.post(self.post_score_url, data=self.add_to_score_json, mimetype="application/json")
+            response_json = json.dumps(response.get_json())
+            
+            # serialize objects
+            expected_record = rewards.reward_schema.loads(self.new_score_json) 
+            response_record = rewards.reward_schema.loads(response_json)
+
+            # tests these guys out
+            self.assertEqual(http_status.OK, response.status_code)
+            self.assertEqual(expected_record.user, response_record.user)
+            self.assertEqual(expected_record.score, response_record.score)
                
     
-
-    # TODO
     def test_is_prize_available(self):
         """ This asserts one can only get a prize if one has enough points"""
-        '''username = 'dwight_schrute'
-        score = self.GOOD_RESPONSES[username]
-        expected_reply = {username : True}
-        response = requests.get(f"{self.is_prize_available_url}/{username}")
-        actual_reply = response.json().get('score')
+        user = 2
+        prize_url = "http://127.0.0.1:5004/rewards/prizes"
+        prize_response_dict = {"points_until_prize": 5, "prize_avaliable": False, "user":user}
+        expected_json_response = json.dumps(prize_response_dict)
 
-        self.assertEqual(actual_reply, expected_reply,
-        f"Got {actual_reply} but expected {expected_reply} ")'''
+        with rewards.app.test_client() as prize_route:
+            response = prize_route.get(f'{prize_url}/{user}')
+            actual_json_response = json.dumps(response.json)
+            self.assertEqual(actual_json_response, expected_json_response)
 
 
     def test_not_found(self):
