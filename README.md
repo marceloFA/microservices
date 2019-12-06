@@ -52,162 +52,192 @@ APIs and Documentation
 This service is used to get information about a movie. It provides the movie title, rating on a 1-10 scale, 
 director and other information.
 
-To lookup all movies in the database, hit: `http://127.0.0.1:5001/movies`
+To lookup all movies in the database, hit: http://127.0.0.1:5001/movies
 
+```
 
     GET /movies
     Returns a list of all movies.
     
-    {
-        "267eedb8-0f5d-42d5-8f43-72426b9fb3e6": {
-            "director": "Ryan Coogler", 
-            "id": "267eedb8-0f5d-42d5-8f43-72426b9fb3e6", 
-            "rating": 8.8, 
-            "title": "Creed"
-    }, 
-    ...... output truncated ...... 
+    [
+  {
+    "director": "Richard Linklater",
+    "id": 1,
+    "rating": 10,
+    "title": "Boyhood"
+  },
+  {
+    "director": "Richard Linklater",
+    "id": 2,
+    "rating": 8,
+    "title": "Before Sunset"
+  },
+  ...... output truncated ...... 
+```
 
-To lookup a movie by its `id`:
+    
 
-    GET /movies/7daf7208-be4d-4944-a3ae-c1c2f516f3e6
+To lookup a movie by its id:
+```
+    GET /movies/3
     Returns the specified movie.
     
     {
-        "director": "Paul McGuigan", 
-        "id": "7daf7208-be4d-4944-a3ae-c1c2f516f3e6", 
-        "rating": 6.4, 
-        "title": "Victor Frankenstein", 
-        "uri": "/movies/7daf7208-be4d-4944-a3ae-c1c2f516f3e6"
+      "director": "Richard Linklater",
+      "id": 3,
+      "rating": 9,
+      "title": "Waking Life"
     }
-    
+``` 
 ## Showtimes Service (port 5002)
 
 This service is used get a list of movies playing on a certain date.
 
-To lookup all showtimes, hit: `http://127.0.0.1:5002/showtimes`
+To lookup all showtimes, hit: http://127.0.0.1:5002/showtimes
 
-
+``` 
     GET /showtimes
     Returns a list of all showtimes by date.
     
-    {
-    "20151130": [
-        "720d006c-3a57-4b6a-b18f-9b713b073f3c", 
-        "a8034f44-aee4-44cf-b32c-74cf452aaaae", 
-        "39ab85e5-5e8e-4dc5-afea-65dc368bd7ab"
-    ], 
-    ...... output truncated ...... 
+   [
+  {
+    "date": "2019-11-01",
+    "id": 1,
+    "movie": 1
+  },
+  {
+    "date": "2019-11-02",
+    "id": 2,
+    "movie": 2
+  }, 
+   ...... output truncated ...... 
+```
 
 To get movies playing on a certain date:
-
-    GET /showtimes/20151201
+```
+    GET /showtimes/2015-11-01
     Returns all movies playing on the date.
-
     [
-        "267eedb8-0f5d-42d5-8f43-72426b9fb3e6", 
-        "7daf7208-be4d-4944-a3ae-c1c2f516f3e6", 
-        "39ab85e5-5e8e-4dc5-afea-65dc368bd7ab", 
-        "a8034f44-aee4-44cf-b32c-74cf452aaaae"
+      {
+        "date": "2019-11-01",
+        "id": 1,
+        "movie": 1
+      }
     ]
+```
 
 ## Booking Service (port 5003)
 
 Used to lookup booking information for users.
 
-To get all bookings by all users in the system, hit: `http://127.0.0.1:5003/bookings`
-
+To get all bookings by all users in the system, hit: http://127.0.0.1:5003/bookings
+```
     GET /bookings
     Returns a list of booking information for all bookings in the database.
-    
-    {
-        "chris_rivers": {
-            "20151201": [
-                "267eedb8-0f5d-42d5-8f43-72426b9fb3e6"
-            ]
-        }, 
-        ...... output truncated ...... 
-    }   
+   [
+  {
+    "date": "2019-11-01",
+    "id": 1,
+    "movie": 1,
+    "rewarded": true,
+    "user": 1
+  },
+  {
+    "date": "2019-11-01",
+    "id": 2,
+    "movie": 2,
+    "rewarded": true,
+    "user": 2
+  },
+  ...... output truncated ...... 
+```   
 To lookup booking information for a user:
+```
+    GET /bookings/3
+    [
+      {
+        "date": "2019-11-03",
+        "id": 3,
+        "movie": 3,
+        "rewarded": true,
+        "user": 3
+      }
+    ]
+```
 
-    GET /bookings/dwight_schrute
-    
-        {
-            "20151201": [
-                "7daf7208-be4d-4944-a3ae-c1c2f516f3e6", 
-                "267eedb8-0f5d-42d5-8f43-72426b9fb3e6"
-            ], 
-            "20151205": [
-                "a8034f44-aee4-44cf-b32c-74cf452aaaae", 
-                "276c79ec-a26a-40a6-b3d3-fb242a5947b6"
-            ]
-        }
-
-To make a new booking the POST request would be:
+To make a new booking the POST request to http://127.0.0.1:5003/bookings/new must contain the following json:
         
     POST /bookings/new
     {
-        "user" : "chris_rivers",
-        "date": "20151201"
-        "movie": "7daf7208-be4d-4944-a3ae-c1c2f516f3e6"
+        "user" : 3,
+        "date": "2020-01-01"
+        "movie": 2
     }  
-
 
 ## User Service (port 5000)
 
 This service returns information about the users of Cinema 3 and also provides movie suggestions to the 
 users. It communicates with other services to retrieve booking or movie information.
 
-To get a list of all the users in the system, hit: `http://127.0.0.1:5000/users`
-
+To get a list of all the users in the system, hit: http://127.0.0.1:5000/users
+```
     GET /users
     Returns a list of all users in the database.
     
+    [
+      {
+        "id": 1,
+        "name": "Jim Halpert"
+      },
+      {
+        "id": 2,
+        "name": "Dwight Schrute"
+      },       
+    ...... output truncated ...... 
+```
+To lookup information about a user you can use its id with this route: http://127.0.0.1:5000/1
+```
+    GET /users/1
     {
-        "chris_rivers": {
-            "id": "chris_rivers", 
-            "last_active": 1360031010, 
-            "name": "Chris Rivers"
-        }, 
-        ...... output truncated ...... 
-
-To lookup information about a user:
-
-    GET /users/michael_scott
-    {
-        "id": "michael_scott", 
-        "last_active": 1360031625, 
-        "name": "Michael Scott"
+      "id": 1,
+      "name": "Jim Halpert"
     }
-    
-To get suggested movies for a user:
-
-    GET /users/michael_scott/suggested
+```    
 
 ## Rewards Service (port 5004)
 
 This service provides rewards for uses that have bought various tickets.
 Everytime a user buy a new ticket his/her scores a new point on the reward service.
 
-To get a list of all the users and their rewards score in the system, hit: `http://127.0.0.1:5000/rewards`
-
+To get a list of all the users and their rewards score in the system, hit: http://127.0.0.1:5004/rewards
+```
     GET /rewards
+    [
+      {
+        "score": 0,
+        "user": 1
+      },
+      {
+        "score": 0,
+        "user": 2
+      },
+    ..... output truncated .....
+```
+To lookup the score for a user, hit http://127.0.0.1:5004/rewards/2
+```
+    GET /rewards/2   
     {
-        "chris_rivers": {
-            "score":1
-        },
-        "garret_heaton": {
-            "score":2
-        },
-        "dwight_schrute": {
-            "score":4
-        }
+        "score": 0,
+        "user": 2
     }
-
-To lookup the score for a user, it goes like this:
-
-    GET /rewards/michael_scott
+```
+To check if a user has enought point to get a reward, the GET request to http://127.0.0.1:5004/rewards/prizes/2.
+The response will be like:
+```
+    GET /rewards/prizes/2
     {
-        "michael_scott": {
-            "score":1
-            }
+        "points_until_prize": 0,
+        "prize_avaliable": True,
+        "user":2
     }
+```
