@@ -13,6 +13,8 @@ venv:
 install: clean venv
 	. venv/bin/activate; pip install -r requirements.txt
 	. venv/bin/activate; pip install -e .
+	. venv/bin/activate; autopep8 --in-place --aggressive --recursive tests/
+	. venv/bin/activate; autopep8 --in-place --aggressive --recursive services/
 	. venv/bin/activate; python setup.py install
 	. venv/bin/activate; python setup.py develop
 
