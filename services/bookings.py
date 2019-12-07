@@ -1,3 +1,4 @@
+import requests
 from os.path import dirname, realpath
 # microframework for webapps
 from flask import Flask, request, Response, abort
@@ -40,8 +41,8 @@ class Booking(db.Model):
 class BookingSchema(Schema):
     """ Defines how a Booking instance will be serialized"""
     class Meta:
-         """ Add meta attributes here """
-         ordered = True #The output will be ordered according to the order that the fields are defined in the class.
+        """ Add meta attributes here """
+        ordered = True  # The output will be ordered according to the order that the fields are defined in the class.
 
     date = fields.Date()
     id = fields.Int(required=False)
@@ -53,6 +54,7 @@ class BookingSchema(Schema):
     def make_booking(self, data, **kwargs):
         """ Deals with deserialization """
         return Booking(**data)
+
 
 # instantiate the schema serializer
 booking_schema = BookingSchema()
@@ -74,7 +76,8 @@ def hello():
 def booking_list():
     """ Return all booking instances """
     bookings = Booking.query.all()
-    serialized_objects = bookings_schema.dumps(bookings, sort_keys=True, indent=4)
+    serialized_objects = bookings_schema.dumps(
+        bookings, sort_keys=True, indent=4)
 
     return Response(
         response=serialized_objects,
@@ -91,40 +94,61 @@ def booking_record(user):
     if not user_bookings:
         raise abort(404, description="Resource not found")
 
-    serialized_objects = bookings_schema.dumps(user_bookings, sort_keys=True, indent=4)
+    serialized_objects = bookings_schema.dumps(
+        user_bookings, sort_keys=True, indent=4)
 
     return Response(
-    response=serialized_objects,
-    status=http_status.OK,
-    mimetype="application/json"
+        response=serialized_objects,
+        status=http_status.OK,
+        mimetype="application/json"
     )
 
 # Route for adding a new booking
 @app.route("/bookings/new", methods=["POST"])
 def new_booking():
     """ Make a new booking after a POST request """
+    # we may want to define a table in the db for this and other rewards
+    points_ammount_for_new_booking = 1
     new_booking = ''
     try:
-        #TODO: why the fuck request.get_json() return a python 
+        # TODO: why the fuck request.get_json() return a python
         # dict instead of a json string? bug?
         new_booking = booking_schema.loads(request.data)
     except ValidationError as err:
         pass
-        #TODO: send a exception  message
+        # TODO: send a exception  message
 
     # save data:
     db.session.add(new_booking)
     db.session.commit()
 
-    #TODO: send new reward point for this user
-
+    # send a reward point for this user
+    response_from_rewards_service = add_to_user_score(
+        new_booking.user, points_ammount_for_new_booking)
+    new_booking.rewarded = True if response_from_rewards_service == http_status.OK else False
 
     return Response(
-      response=booking_schema.dumps(new_booking, sort_keys=True, indent=4),
-      status=http_status.OK,
-      mimetype='application/json'
-      )
-   
+        response=booking_schema.dumps(new_booking, sort_keys=True, indent=4),
+        status=http_status.OK,
+        mimetype='application/json'
+    )
+
+
+def add_to_user_score(user, points_to_be_added):
+    """ This sends a new point to a user's score on the Rewards service"""
+    post_score_url = "http://localhost:5004/rewards/add_score"
+    data = {"user": user, "add_to_score": points_to_be_added}
+
+    try:
+        response = requests.post(post_score_url, json=data)
+    except requests.exceptions.ConnectionError:
+        raise ServiceUnavailable("The Rewards service is unavailable.")
+
+    if response.status_code == http_status.NOT_FOUND:
+        raise NotFound(f"No reward record were found for user {user}")
+
+    return response.status_code
+
 
 # exeuted when this is called from the cmd
 if __name__ == "__main__":

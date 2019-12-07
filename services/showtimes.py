@@ -36,10 +36,10 @@ class Showtime(db.Model):
 
 class ShowtimeSchema(Schema):
     """ Defines how a Showtime instance will be serialized"""
-    
+
     class Meta:
-         """ Add meta attributes here """
-         ordered = True # The output will be ordered according to the order that the fields are defined in the class.
+        """ Add meta attributes here """
+        ordered = True  # The output will be ordered according to the order that the fields are defined in the class.
 
     date = fields.Date()
     id = fields.Int(requeired=False)
@@ -48,6 +48,7 @@ class ShowtimeSchema(Schema):
     @post_load
     def make_showtime(self, data, **kwargs):
         return Showtime(**data)
+
 
 # instantiate the schema serializer
 showtime_schema = ShowtimeSchema()
@@ -69,7 +70,8 @@ def hello():
 def showtimes_list():
     """ Return all booking instances """
     showtimes = Showtime.query.all()
-    serialized_objects = showtimes_schema.dumps(showtimes, sort_keys=True, indent=4)
+    serialized_objects = showtimes_schema.dumps(
+        showtimes, sort_keys=True, indent=4)
 
     return Response(
         response=serialized_objects,
@@ -88,12 +90,13 @@ def showtimes_record(date):
     if not showtimes:
         raise NotFound
 
-    serialized_objects = showtimes_schema.dumps(showtimes, sort_keys=True, indent=4)
+    serialized_objects = showtimes_schema.dumps(
+        showtimes, sort_keys=True, indent=4)
 
     return Response(
-    response=serialized_objects,
-    status=http_status.OK,
-    mimetype="application/json"
+        response=serialized_objects,
+        status=http_status.OK,
+        mimetype="application/json"
     )
 
 # Route for adding a new movie
@@ -105,16 +108,17 @@ def new_movie():
         new_showtime = showtime_schema.loads(request.data)
     except ValidationError as err:
         pass
-        #TODO: send a exception  message
+        # TODO: send a exception  message
     # save data:
     db.session.add(new_showtime)
     db.session.commit()
 
     return Response(
-      response=showtime_schema.dumps(new_showtime, sort_keys=True, indent=4),
-      status=http_status.OK,
-      mimetype='application/json'
-      )
+        response=showtime_schema.dumps(new_showtime, sort_keys=True, indent=4),
+        status=http_status.OK,
+        mimetype='application/json'
+    )
+
 
 # exeuted when this is called from the cmd
 if __name__ == "__main__":

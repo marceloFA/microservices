@@ -42,6 +42,7 @@ class RewardSchema(Schema):
     def make_reward(self, data, **kwargs):
         return Reward(**data)
 
+
 # instantiate the schema serializer
 reward_schema = RewardSchema()
 rewards_schema = RewardSchema(many=True)
@@ -52,7 +53,8 @@ rewards_schema = RewardSchema(many=True)
 def rewards_list():
     """ Return all Reward instances """
     rewards = Reward.query.all()
-    serialized_objects = rewards_schema.dumps(rewards, sort_keys=True, indent=4)
+    serialized_objects = rewards_schema.dumps(
+        rewards, sort_keys=True, indent=4)
 
     return Response(
         response=serialized_objects,
@@ -72,9 +74,9 @@ def reward_info(user):
     serialized_object = reward_schema.dumps(reward, sort_keys=True, indent=4)
 
     return Response(
-    response=serialized_object,
-    status=http_status.OK,
-    mimetype="application/json"
+        response=serialized_object,
+        status=http_status.OK,
+        mimetype="application/json"
     )
 
 # Route for adding a new score
@@ -92,13 +94,13 @@ def add_score():
     db.session.commit()
 
     return Response(
-      response=reward_schema.dumps(user_score, sort_keys=True, indent=4),
-      status=http_status.OK,
-      mimetype='application/json'
-   )
+        response=reward_schema.dumps(user_score, sort_keys=True, indent=4),
+        status=http_status.OK,
+        mimetype='application/json'
+    )
 
 
-@app.route("/rewards/prizes/<user>", methods=['GET',])
+@app.route("/rewards/prizes/<user>", methods=['GET', ])
 def is_prize_available(user):
     """ Route to determine if user can retrieve prizes given a score
         response json has the following format:
@@ -117,21 +119,21 @@ def is_prize_available(user):
     if not user_record:
         return NotFound
     # check if user can get a prize
-    if user_record.score <needed_points_for_prize:
+    if user_record.score < needed_points_for_prize:
         prize_available = False
         remaining_points = needed_points_for_prize - user_record.score
-        
+
     response_dict = {"user": user,
-                    "prize_avaliable":prize_available,
-                    "points_until_prize": remaining_points
-                    }
-    
+                     "prize_avaliable": prize_available,
+                     "points_until_prize": remaining_points
+                     }
+
     return Response(
-      response=json.dumps(response_dict, sort_keys=True, indent=4),
-      status=http_status.OK,
-      mimetype='application/json'
-   )
+        response=json.dumps(response_dict, sort_keys=True, indent=4),
+        status=http_status.OK,
+        mimetype='application/json'
+    )
 
 
 if __name__ == '__main__':
-	app.run(port=5004, debug=True)
+    app.run(port=5004, debug=True)

@@ -37,8 +37,8 @@ class Movie(db.Model):
 class MovieSchema(Schema):
     """ Defines how a Movie instance will be serialized"""
     class Meta:
-         """ Add meta attributes here """
-         ordered = True # The output will be ordered according to the order that the fields are defined in the class.
+        """ Add meta attributes here """
+        ordered = True  # The output will be ordered according to the order that the fields are defined in the class.
 
     director = fields.String()
     id = fields.Int()
@@ -49,6 +49,7 @@ class MovieSchema(Schema):
     def make_movie(self, data, **kwargs):
         """ Deals with deserialization"""
         return Movie(**data)
+
 
 # instantiate the schema serializer
 movie_schema = MovieSchema()
@@ -90,9 +91,9 @@ def movie_info(id):
     serialized_object = movie_schema.dumps(movie, sort_keys=True, indent=4)
 
     return Response(
-    response=serialized_object,
-    status=http_status.OK,
-    mimetype="application/json"
+        response=serialized_object,
+        status=http_status.OK,
+        mimetype="application/json"
     )
 
 # add a route to GET all movies
@@ -117,18 +118,18 @@ def new_movie():
         new_movie = movie_schema.loads(request.data)
     except ValidationError as err:
         pass
-        #TODO: send a exception  message
+        # TODO: send a exception  message
     # save data:
     db.session.add(new_movie)
     db.session.commit()
 
     return Response(
-      response=movie_schema.dumps(new_movie, sort_keys=True, indent=4),
-      status=http_status.OK,
-      mimetype='application/json'
-      )
+        response=movie_schema.dumps(new_movie, sort_keys=True, indent=4),
+        status=http_status.OK,
+        mimetype='application/json'
+    )
+
 
 # exeuted when this is called from the cmd
 if __name__ == "__main__":
     app.run(port=5001, debug=True)
-

@@ -21,6 +21,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = db_file
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
+
 class User(db.Model):
     """ This class maps the database user model """
     id = db.Column(db.Integer, primary_key=True)
@@ -29,12 +30,13 @@ class User(db.Model):
     def __repr__(self):
         return f"<User: {self.name}>"
 
+
 class UserSchema(Schema):
     """ Defines how a user instance will be serialized"""
-    
+
     class Meta:
-         """ Add meta attributes here """
-         ordered = True # The output will be ordered according to the order that the fields are defined in the class.
+        """ Add meta attributes here """
+        ordered = True  # The output will be ordered according to the order that the fields are defined in the class.
 
     id = fields.Int(requeired=False)
     name = fields.String()
@@ -43,9 +45,11 @@ class UserSchema(Schema):
     def make_user(self, data, **kwargs):
         return User(**data)
 
+
 # instantiate the schema serializer
 user_schema = UserSchema()
 users_schema = UserSchema(many=True)
+
 
 @app.route("/", methods=['GET'])
 def hello():
@@ -83,9 +87,9 @@ def user_record(user):
     serialized_objects = user_schema.dumps(user, sort_keys=True, indent=4)
 
     return Response(
-    response=serialized_objects,
-    status=http_status.OK,
-    mimetype="application/json"
+        response=serialized_objects,
+        status=http_status.OK,
+        mimetype="application/json"
     )
 
 # Route for adding a new user
@@ -97,16 +101,16 @@ def new_user():
         new_user = user_schema.loads(request.data)
     except ValidationError as err:
         pass
-        #TODO: send a exception  message
+        # TODO: send a exception  message
     # save data:
     db.session.add(new_user)
     db.session.commit()
 
     return Response(
-      response=user_schema.dumps(new_user, sort_keys=True, indent=4),
-      status=http_status.OK,
-      mimetype='application/json'
-      )
+        response=user_schema.dumps(new_user, sort_keys=True, indent=4),
+        status=http_status.OK,
+        mimetype='application/json'
+    )
 
 # TODO: refactor this method
 @app.route("/users/<user>/bookings", methods=['GET'])
@@ -119,20 +123,20 @@ def user_bookings(user):
     get_bookings_url = "http://127.0.0.1:5003/bookings"
     if not User.query.get(user):
         return NotFound
-    
+
     try:
         response = requests.get(f"{get_bookings_url}/{user}")
     except requests.exceptions.ConnectionError:
         raise ServiceUnavailable("The Bookings service is unavailable.")
 
     if response.status_code == http_status.NOT_FOUND:
-        raise NotFound("No bookings were found for user {user}")
+        raise NotFound(f"No bookings were found for user {user}")
 
     return Response(
-      response=json.dumps(response.json()),
-      status=http_status.OK,
-      mimetype='application/json'
-      )
+        response=json.dumps(response.json()),
+        status=http_status.OK,
+        mimetype='application/json'
+    )
 
 # TODO: implement this
 @app.route("/users/<username>/suggested", methods=['GET'])

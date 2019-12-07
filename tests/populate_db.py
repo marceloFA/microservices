@@ -45,7 +45,7 @@ movies_db.session.add(m3)
 movies_db.session.commit()
 
 
-#populate rewards
+# populate rewards
 r1 = Reward(user=1, score=0)
 r2 = Reward(user=2, score=0)
 r3 = Reward(user=3, score=0)
@@ -55,7 +55,7 @@ rewards_db.session.add(r3)
 rewards_db.session.commit()
 
 
-#populate showtimes
+# populate showtimes
 s1 = Showtime(date=date(2019, 11, 1), movie=1)
 s2 = Showtime(date=date(2019, 11, 2), movie=2)
 s3 = Showtime(date=date(2019, 11, 3), movie=3)
